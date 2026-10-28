@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block title %}Billing · Agro Shop{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">SALES COUNTER</p><h1>Create a bill</h1><p class="muted">Choose items and quantities. Stock changes only after a successful bill.</p></div></div>
+<form method="post" class="panel" id="bill-form"><div class="form-grid bill-meta"><label>Farmer (required for credit)<select name="farmer_id"><option value="">Walk-in / fully paid sale</option>{% for f in farmers %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}</select></label><label>Amount paid (₹)<input type="number" id="paid" name="paid" min="0" step="0.01" value="0" required></label></div>
+<h2>Items</h2><div id="items">{% for p in products %}<div class="bill-row"><div><strong>{{ p.name }}</strong><div class="muted small">{{ p.category }} · ₹{{ '%.2f'|format(p.price) }} each · {{ p.quantity }} available</div></div><input type="hidden" name="product_id" value="{{ p.id }}"><label class="qty-label">Qty<input type="number" name="quantity" min="0" max="{{ p.quantity }}" value="0" data-price="{{ p.price }}" class="qty"></label></div>{% else %}<p>No stock available. Add products first.</p>{% endfor %}</div>
+<div class="bill-total"><div><span class="muted">Bill total</span><strong id="total">₹0.00</strong></div><div><span class="muted">Estimated credit</span><strong id="credit">₹0.00</strong></div></div><button class="button" type="submit">Create bill</button></form>
+<script>
+const qtyInputs = document.querySelectorAll('.qty');
+function updateTotal(){let total=0;qtyInputs.forEach(i=>{total+=(Number(i.value)||0)*(Number(i.dataset.price)||0)});const paid=Math.max(0,Number(document.getElementById('paid').value)||0);document.getElementById('total').textContent='₹'+total.toFixed(2);document.getElementById('credit').textContent='₹'+Math.max(0,total-paid).toFixed(2);}
+qtyInputs.forEach(i=>i.addEventListener('input',updateTotal));document.getElementById('paid').addEventListener('input',updateTotal);updateTotal();
+</script>
+{% endblock %}
